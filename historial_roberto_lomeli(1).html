@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Historial Clínico — Roberto Lomelí</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface2: #F0EFE9;
+    --border: #E2E0D8;
+    --border-strong: #C8C5BA;
+    --text: #1A1916;
+    --text-muted: #6B6860;
+    --text-faint: #9B9890;
+    --red: #C0392B;
+    --red-bg: #FDF2F0;
+    --red-border: #F0C4BE;
+    --orange: #C05C1A;
+    --orange-bg: #FDF5EE;
+    --orange-border: #EECFA8;
+    --purple: #4A3F9F;
+    --purple-bg: #F2F0FB;
+    --purple-border: #C5BFED;
+    --blue: #1A5276;
+    --blue-bg: #EEF4F9;
+    --blue-border: #A8C8E0;
+    --green: #1E6B3A;
+    --green-bg: #F0F7F3;
+    --green-border: #A8D4BA;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .top-bar {
+    background: var(--text);
+    color: var(--bg);
+    padding: 10px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+
+  .top-bar-right { color: #888; }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* HEADER */
+  .patient-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--text);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .patient-name {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .patient-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-family: var(--mono);
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 2px;
+    letter-spacing: 0.02em;
+  }
+
+  .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .badge-orange { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+  .badge-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+
+  .status-block {
+    text-align: right;
+  }
+
+  .status-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .status-value {
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--red);
+    font-weight: 500;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 18px 22px;
+    margin-bottom: 10px;
+  }
+
+  .card-red {
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    border-left: 3px solid var(--red);
+  }
+
+  .card-orange {
+    background: var(--orange-bg);
+    border: 1px solid var(--orange-border);
+    border-left: 3px solid var(--orange);
+  }
+
+  .card-purple {
+    background: var(--purple-bg);
+    border: 1px solid var(--purple-border);
+    border-left: 3px solid var(--purple);
+  }
+
+  .card-blue {
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-left: 3px solid var(--blue);
+  }
+
+  .card-title {
+    font-size: 12px;
+    font-family: var(--mono);
+    font-weight: 500;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .card-title-red { color: var(--red); }
+  .card-title-orange { color: var(--orange); }
+  .card-title-purple { color: var(--purple); }
+  .card-title-blue { color: var(--blue); }
+
+  .card p, .card-body {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text);
+  }
+
+  /* SYMPTOM GRID */
+  .symptom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .symptom-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .symptom-item .sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-top: 2px;
+    font-family: var(--mono);
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 24px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border-strong);
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .tl-dot {
+    position: absolute;
+    left: -20px;
+    top: 6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--border-strong);
+  }
+
+  .tl-dot-red { border-color: var(--red); background: var(--red-bg); }
+  .tl-dot-orange { border-color: var(--orange); background: var(--orange-bg); }
+  .tl-dot-purple { border-color: var(--purple); background: var(--purple-bg); }
+  .tl-dot-blue { border-color: var(--blue); background: var(--blue-bg); }
+
+  .tl-date {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-faint);
+    margin-bottom: 3px;
+    letter-spacing: 0.03em;
+  }
+
+  .tl-main {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .tl-sub {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .tl-gap {
+    display: inline-block;
+    font-size: 10px;
+    font-family: var(--mono);
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid var(--red-border);
+    padding: 2px 8px;
+    margin-top: 4px;
+    letter-spacing: 0.03em;
+  }
+
+  /* TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .data-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    text-align: left;
+    padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--border-strong);
+    font-weight: 500;
+  }
+
+  .data-table td {
+    padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .val-red { color: var(--red); font-weight: 600; font-family: var(--mono); }
+  .val-orange { color: var(--orange); font-weight: 600; font-family: var(--mono); }
+  .val-green { color: var(--green); font-family: var(--mono); }
+  .val-mono { font-family: var(--mono); }
+
+  /* CHECKLIST */
+  .checklist {
+    list-style: none;
+  }
+
+  .checklist li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .cl-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .cl-red { background: var(--red); }
+  .cl-orange { background: var(--orange); }
+  .cl-blue { background: var(--blue); }
+
+  /* PILLS */
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .pill {
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    border-radius: 1px;
+  }
+
+  .pill-active {
+    background: var(--blue-bg);
+    color: var(--blue);
+    border-color: var(--blue-border);
+    font-weight: 500;
+  }
+
+  /* PRIORITY CHECKLIST */
+  .priority-list { list-style: none; }
+  .priority-list li {
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.6;
+  }
+  .priority-list li:last-child { border-bottom: none; }
+  .p-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--surface);
+    background: var(--red);
+    padding: 1px 5px;
+    border-radius: 1px;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .p-num-2 { background: var(--orange); }
+  .p-num-3 { background: var(--blue); }
+
+  /* MISC */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .meta-row {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.9;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+  }
+
+  .meta-row .muted { color: var(--text-muted); }
+
+  .footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-faint);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @media print {
+    body { background: white; }
+    .top-bar { background: black; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .container { padding: 20px; }
+  }
+
+  @media (max-width: 600px) {
+    .patient-header { grid-template-columns: 1fr; }
+    .symptom-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .container { padding: 20px 14px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span>HISTORIAL CLÍNICO — USO MÉDICO</span>
+  <span class="top-bar-right">Generado: Abril 2026 · Versión 1.1</span>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="patient-header">
+    <div>
+      <div class="patient-name">Roberto Lomelí</div>
+      <div class="patient-sub">Masculino · 58 años (n. 18 dic 1967) · Guadalajara, Jalisco</div>
+      <div class="badges">
+        <span class="badge badge-red">Sin diagnóstico definitivo</span>
+        <span class="badge badge-red">Hipopituitarismo parcial — no estudiado</span>
+        <span class="badge badge-orange">Trombocitopenia progresiva</span>
+        <span class="badge badge-orange">Síntomas activos ~11 meses</span>
+        <span class="badge badge-blue">Hematología abr 2026 · Endocrino ene 2026</span>
+      </div>
+    </div>
+    <div class="status-block">
+      <div class="status-label">Estatus</div>
+      <div class="status-value">SIN DX</div>
+      <div style="margin-top: 10px;">
+        <div class="status-label">Inicio síntomas</div>
+        <div style="font-family: var(--mono); font-size: 12px; color: var(--text-muted);">Mayo 2025</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOTIVO PRINCIPAL -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Motivo de consulta</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card card-orange">
+      <div class="card-title card-title-orange">Cuadro principal</div>
+      <p>Paciente masculino de 57 años al inicio (58 años actualmente, n. 18 dic 1967) con síntomas de inicio en mayo 2025 (coincidiendo con uso de Wegovy): <strong>mareos, hormigueos en cabeza, debilidad generalizada y fatiga intensa</strong>, sin dolor. Los síntomas llevan ~11 meses con patrón fluctuante ("montaña rusa"), sin resolución y sin diagnóstico definitivo a la fecha.</p>
+    </div>
+  </div>
+
+  <!-- SÍNTOMAS ACTUALES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Síntomas actuales</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="symptom-grid">
+      <div class="symptom-item">Mareos <div class="sub">Desde may 2025 · fluctuantes · 11 meses</div></div>
+      <div class="symptom-item">Fatiga intensa <div class="sub">Persistente · limitante</div></div>
+      <div class="symptom-item">Debilidad generalizada <div class="sub">Sin dolor asociado</div></div>
+      <div class="symptom-item">Hormigueos en cabeza <div class="sub">Sin focalidad neurológica</div></div>
+      <div class="symptom-item">Piel seca <div class="sub">Signo de hipotiroidismo central / déficit GH</div></div>
+      <div class="symptom-item">Libido bajo <div class="sub">Sin disfunción eréctil · déficit gonadotrópico probable</div></div>
+      <div class="symptom-item">Pérdida de peso −6 kg <div class="sub">Desde mayo 2025 · paciente deportista</div></div>
+      <div class="symptom-item">Episodios hipoglucémicos <div class="sub">Varios · mayo–diciembre 2025</div></div>
+    </div>
+  </div>
+
+  <!-- HIPÓTESIS PRINCIPAL -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Hipótesis diagnóstica principal</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card card-purple">
+      <div class="card-title card-title-purple">Síndrome de silla turca vacía secundaria con hipopituitarismo parcial</div>
+      <p>Paciente con <strong>aracnoidocele selar grado II</strong> (hipófisis comprimida al 50%, RMN junio 2025) que presenta el cuadro clínico clásico de disfunción hipofisaria: fatiga severa, debilidad, mareos, pérdida de 6 kg, libido bajo, piel seca, T3 total bajo (0.63 ng/mL), y episodios hipoglucémicos repetidos entre mayo y diciembre 2025.<br><br>
+      <strong style="color: var(--red);">Problema central:</strong> Este hallazgo fue evaluado exclusivamente por neurocirugía ("sin hallazgos importantes") y nunca fue estudiado endocrinológicamente con panel hipofisario completo. El endocrinólogo que evaluó al paciente en enero 2026 enfocó la consulta en la prediabetes. El cuadro clínico del paciente permanece sin explicación causal.</p>
+    </div>
+  </div>
+
+  <!-- CORRELACIÓN CLÍNICA -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Por qué el cuadro apunta a hipófisis</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card">
+      <ul class="checklist">
+        <li><span class="cl-dot cl-red"></span><div><strong>T3 total bajo (0.63) con TSH normal (2.97)</strong> — patrón de hipotiroidismo central: la hipófisis no secreta suficiente TSH para mantener T3/T4. No es hipotiroidismo primario.</div></li>
+        <li><span class="cl-dot cl-orange"></span><div><strong>Episodios hipoglucémicos repetidos en no-diabético sin hipoglucemiantes</strong> — Cortisol basal 20.40 µg/dL (may 2025) en rango normal matutino; sin embargo, un cortisol basal normal no descarta insuficiencia suprarrenal central parcial. La prueba definitiva es la estimulación con ACTH. Insulina 3.58 µIU/mL (límite inferior) descarta hiperinsulinismo como causa de hipoglucemias.</div></li>
+        <li><span class="cl-dot cl-red"></span><div><strong>Pérdida de 6 kg en deportista de alto rendimiento con dieta de 2500 kcal</strong> — pérdida de masa muscular por déficit de GH o hipocortisolismo crónico.</div></li>
+        <li><span class="cl-dot cl-orange"></span><div><strong>Libido bajo sin disfunción eréctil</strong> — patrón de déficit gonadotrópico (LH/FSH bajas → testosterona baja). Testosterona no medida.</div></li>
+        <li><span class="cl-dot cl-orange"></span><div><strong>Piel seca persistente</strong> — déficit de GH o hipotiroidismo central.</div></li>
+        <li><span class="cl-dot cl-orange"></span><div><strong>Fatiga y debilidad a pesar de composición corporal óptima</strong> — no explicable por desacondicionamiento. Típico de hipocortisolismo o déficit de GH.</div></li>
+        <li><span class="cl-dot cl-blue"></span><div><strong>Síntomas fluctuantes durante 11 meses</strong> — compatible con insuficiencia hipofisaria parcial: la glándula funciona intermitentemente bajo distintos estados metabólicos y de estrés.</div></li>
+      </ul>
+      <div style="margin-top: 10px; font-size: 11px; font-family: var(--mono); color: var(--text-faint);">Rojo = alta correlación · Naranja = correlación moderada · Azul = patrón temporal</div>
+    </div>
+  </div>
+
+  <!-- CRONOLOGÍA -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Cronología clínica</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Antecedentes</div>
+          <div class="tl-main">Fumador activo 35 años · 2 cajetillas/día · Exalcohólico (cese ~1 año antes de síntomas) · Úlcera gástrica (cx) · Acidez crónica · Deportista alto rendimiento</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-orange"></div>
+          <div class="tl-date">Abril 2025</div>
+          <div class="tl-main">Diagnóstico: <strong>prediabetes</strong> · Inicia Wegovy</div>
+          <div class="tl-sub">HbA1c 6.0% · Glucosa 98 mg/dL (sin ayuno)</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-red"></div>
+          <div class="tl-date">Mayo 2025</div>
+          <div class="tl-main"><strong>Inicio de síntomas actuales:</strong> mareos, hormigueos, fatiga, debilidad · Primeros episodios hipoglucémicos</div>
+          <div class="tl-sub">Glucosa 111↑ · HDL 29.8↓↓ · Triglicéridos 205↑↑ · Plaquetas 215</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-purple"></div>
+          <div class="tl-date">Junio 2025</div>
+          <div class="tl-main">RMN cráneo simple: <strong>aracnoidocele selar grado II</strong> (hipófisis 50% comprimida) · Quiste aracnoideo retrocerebeloso izq. 2.3×1.6 cm · Asa vascular complejo VII–VIII derecho (Chavda tipo 1)</div>
+          <div class="tl-sub">Evaluado por neurocirugía · Conclusión: "sin hallazgos importantes"</div>
+          <div><span class="tl-gap">⚠ Sin derivación a endocrinología por hallazgo selar</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Julio–Septiembre 2025</div>
+          <div class="tl-main">Inicio manejo psiquiátrico por síntomas no explicados: escitalopram · clonazepam · desvenlafaxina</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-red"></div>
+          <div class="tl-date">Mayo–Diciembre 2025</div>
+          <div class="tl-main">Episodios hipoglucémicos repetidos · Pérdida progresiva de peso (−6 kg total desde inicio)</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-red"></div>
+          <div class="tl-date">Febrero 2026</div>
+          <div class="tl-main">Plaquetas 119k↓↓ · Macroplaquetas moderadas en frotis · T3 total 0.63↓ · T3 libre 2.41↓ · Hierro 76.4↓ · Ácido úrico 7.8↑ · Albúmina 3.84↓</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-purple"></div>
+          <div class="tl-date">Enero 2026</div>
+          <div class="tl-main">Consulta endocrinología — enfoque exclusivo en prediabetes</div>
+          <div><span class="tl-gap">⚠ Sin panel hipofisario solicitado · Hallazgo selar no abordado</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-blue"></div>
+          <div class="tl-date">Abril 2026 (hoy)</div>
+          <div class="tl-main">Plaquetas 144k · BUN 23.4↑ · Consulta hematología · Síntomas activos y fluctuantes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LABORATORIO -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Laboratorio — parámetros alterados (evolución)</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>May 2025</th>
+            <th>Feb 2026</th>
+            <th>Abr 2026</th>
+            <th>Referencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Plaquetas</td><td class="val-mono">215</td><td class="val-red">119 ↓↓</td><td class="val-orange">144 ↓</td><td class="val-mono">163–337 k/µL</td></tr>
+          <tr><td>VCM</td><td class="val-orange">93.8 ↑</td><td class="val-orange">94.6 ↑</td><td class="val-mono">93.2</td><td class="val-mono">79–92 fL</td></tr>
+          <tr><td>T3 Total</td><td class="val-mono">0.93</td><td class="val-red">0.63 ↓</td><td class="val-mono">—</td><td class="val-mono">0.80–2.00 ng/mL</td></tr>
+          <tr><td>T3 Libre</td><td class="val-mono">2.77</td><td class="val-orange">2.41 ↓</td><td class="val-mono">—</td><td class="val-mono">2.00–4.40 pg/mL</td></tr>
+          <tr><td>Hierro sérico</td><td class="val-mono">138.6</td><td class="val-orange">76.4 ↓</td><td class="val-mono">—</td><td class="val-mono">33–193 µg/dL</td></tr>
+          <tr><td>Albúmina</td><td class="val-mono">4.44</td><td class="val-orange">3.84 ↓</td><td class="val-mono">—</td><td class="val-mono">3.97–4.94 g/dL</td></tr>
+          <tr><td>Ácido úrico</td><td class="val-mono">5.8</td><td class="val-red">7.8 ↑</td><td class="val-mono">—</td><td class="val-mono">3.4–7.0 mg/dL</td></tr>
+          <tr><td>HDL Colesterol</td><td class="val-red">29.8 ↓↓</td><td class="val-green">68.4 ✓</td><td class="val-mono">—</td><td class="val-mono">≥55 mg/dL</td></tr>
+          <tr><td>Triglicéridos</td><td class="val-red">205.7 ↑↑</td><td class="val-green">105 ✓</td><td class="val-mono">—</td><td class="val-mono">&lt;150 mg/dL</td></tr>
+          <tr><td>HbA1c</td><td class="val-orange">6.0%</td><td class="val-orange">6.2%</td><td class="val-mono">—</td><td class="val-mono">≤5.7%</td></tr>
+          <tr><td>BUN</td><td class="val-mono">18.0</td><td class="val-mono">19.1</td><td class="val-orange">23.4 ↑</td><td class="val-mono">6–20 mg/dL</td></tr>
+          <tr><td>AST (TGO)</td><td class="val-mono">34.6</td><td class="val-orange">37.2 ↑*</td><td class="val-mono">—</td><td class="val-mono">10–35 U/L</td></tr>
+          <tr><td>Glucosa</td><td class="val-orange">111 ↑</td><td class="val-orange">107 ↑</td><td class="val-green">92 ✓</td><td class="val-mono">74–106 mg/dL</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- IMAGEN -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Estudios de imagen</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col">
+      <div class="card card-purple">
+        <div class="card-title card-title-purple">RMN Cráneo Simple — 28 Jun 2025</div>
+        <p style="font-size: 13px; line-height: 1.75;">
+          1. <strong>Quiste aracnoideo retrocerebeloso izquierdo</strong> — 2.3 × 1.6 cm<br>
+          2. <strong>Aracnoidocele selar grado II</strong> — hipófisis comprimida al 50%<br>
+          3. <strong>Asa vascular</strong> ángulo pontocerebeloso derecho — Chavda tipo 1<br><br>
+          <span style="color: var(--red); font-size: 12px;">Evaluado solo por neurocirugía. No derivado a endocrinología.</span>
+        </p>
+      </div>
+      <div class="card card-orange">
+        <div class="card-title card-title-orange">Tele de Tórax</div>
+        <p style="font-size: 13px; line-height: 1.75;">
+          · Aortoesclerosis<br>
+          · Disminución de radiopacidad ósea<br>
+          · Osteoartrosis dorsal<br>
+          · Aorta elongada en porción descendente<br>
+          · ICT: 0.42 (normal)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTUDIOS PENDIENTES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Estudios pendientes — por prioridad</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card card-red" style="margin-bottom: 10px;">
+      <div class="card-title card-title-red">Prioridad 1 — Panel hipofisario completo (endocrinología)</div>
+      <ul class="priority-list">
+        <li><span class="p-num">P1</span><div><strong>Cortisol basal 8 am ± prueba de estimulación con ACTH</strong> — descartar insuficiencia suprarrenal central (explica hipoglucemias y fatiga)</div></li>
+        <li><span class="p-num">P1</span><div><strong>Testosterona total + libre · LH · FSH</strong> — déficit gonadotrópico (libido bajo)</div></li>
+        <li><span class="p-num">P1</span><div><strong>IGF-1 · GH basal</strong> — déficit de hormona de crecimiento (pérdida muscular, piel seca, fatiga)</div></li>
+        <li><span class="p-num">P1</span><div><strong>Prolactina</strong> — puede estar elevada por efecto de masa selar</div></li>
+        <li><span class="p-num">P1</span><div><strong>RMN hipofisaria con gadolinio</strong> — caracterización precisa del aracnoidocele selar</div></li>
+      </ul>
+    </div>
+    <div class="card card-red" style="margin-bottom: 10px;">
+      <div class="card-title card-title-red">Prioridad 1 — Trombocitopenia (hematología — visita de hoy)</div>
+      <ul class="priority-list">
+        <li><span class="p-num">P1</span><div><strong>Frotis periférico completo</strong> revisado por especialista + macroplaquetas</div></li>
+        <li><span class="p-num">P1</span><div><strong>ANA · anti-DNA · complemento C3/C4</strong> — descartar causa autoinmune (PTI)</div></li>
+        <li><span class="p-num">P1</span><div><strong>Ferritina · TIBC</strong> — hierro cayó de 138 a 76 µg/dL en 9 meses</div></li>
+        <li><span class="p-num">P1</span><div>Considerar <strong>aspirado de médula ósea</strong> si trombocitopenia sin explicación clara</div></li>
+      </ul>
+    </div>
+    <div class="card card-orange">
+      <div class="card-title card-title-orange">Prioridad 2</div>
+      <ul class="priority-list">
+        <li><span class="p-num p-num-2">P2</span><div><strong>Vitamina B12 y folato sérico</strong> — VCM alto persistente + exalcohólico + fumador crónico</div></li>
+        <li><span class="p-num p-num-2">P2</span><div><strong>Vitamina D</strong> — disminución radiopacidad ósea en tele de tórax, fumador</div></li>
+        <li><span class="p-num p-num-2">P2</span><div><strong>Testosterona</strong> si no incluida en panel hipofisario</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MEDICAMENTOS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Medicamentos</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="pill-row">
+      <span class="pill pill-active">Clonazepam (activo)</span>
+      <span class="pill">Wegovy abr–jun 2025 (8 sem)</span>
+      <span class="pill">Metformina jun 2025 (10 días)</span>
+      <span class="pill">Metformina feb 2026 (13 días)</span>
+      <span class="pill">Escitalopram jul 2025 (desc.)</span>
+      <span class="pill">Desvenlafaxina sep 2025 (desc.)</span>
+    </div>
+    <div style="margin-top: 10px; font-size: 12px; font-family: var(--mono); color: var(--text-muted); padding: 8px 12px; border: 1px dashed var(--border); background: var(--surface);">
+      Nota: Clonazepam puede contribuir a fatiga, mareos y debilidad — sus efectos se superponen con el cuadro actual y pueden confundir la evaluación clínica.
+    </div>
+  </div>
+
+  <!-- ANTECEDENTES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Antecedentes y perfil del paciente</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col">
+      <div class="meta-row">
+        <strong>Hábitos</strong><br>
+        <span class="muted">Tabaco:</span> Fumador activo, desde los 23 años, 2 cajetillas/día<br>
+        <span class="muted">Alcohol:</span> Exalcohólico · cese hace ~1 año<br>
+        <span class="muted">Actividad:</span> Deportista alto rendimiento, ejercicio diario<br>
+        <span class="muted">Hidratación:</span> <strong style="color: var(--orange);">~1 L/día (insuficiente)</strong>
+      </div>
+      <div class="meta-row">
+        <strong>Composición corporal (jun 2025)</strong><br>
+        <span class="muted">Peso:</span> 70 kg (−6 kg desde may 2025)<br>
+        <span class="muted">Grasa:</span> 12.8% (9.0 kg)<br>
+        <span class="muted">Músculo:</span> 45.2% (31.7 kg)<br>
+        <span class="muted">ICC:</span> 0.81 · Cintura: 75 cm
+      </div>
+      <div class="meta-row">
+        <strong>Nutrición</strong><br>
+        <span class="muted">Ingesta:</span> 2500 kcal/día<br>
+        <span class="muted">Dieta actual:</span> Equilibrada<br>
+        <span class="muted">Historial:</span> Dieta deficiente previa, acidez crónica<br>
+        <span class="muted">Úlcera gástrica:</span> Quirúrgica (resuelta)
+      </div>
+      <div class="meta-row">
+        <strong>Especialistas consultados</strong><br>
+        <span class="muted">Neurología:</span> Abril 2025<br>
+        <span class="muted">Neurocirugía:</span> Jun 2025 (RMN)<br>
+        <span class="muted">Endocrinología:</span> Enero 2026 (enfoque: prediabetes)<br>
+        <span class="muted">Hematología:</span> Abril 2026 (trombocitopenia)<br>
+        <span class="muted">Psiquiatría:</span> Jul–Sep 2025
+      </div>
+    </div>
+  </div>
+
+
+  <!-- LABORATORIO HORMONAL MAY 2025 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">Laboratorio hormonal — Mayo 2025</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card card-blue">
+      <div class="card-title card-title-blue">Tomado 29 may 2025 · Analizado 30 may 2025</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Parámetro</th><th>Resultado</th><th>Referencia</th><th>Interpretación</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>TSH</td>
+            <td class="val-mono">2.600 µUI/mL</td>
+            <td class="val-mono">0.270–4.200</td>
+            <td style="font-size:12px; color: var(--text-muted);">Normal. Pero en hipotiroidismo central la TSH puede ser inapropiadamente normal con T3/T4 bajos.</td>
+          </tr>
+          <tr>
+            <td>Cortisol sérico</td>
+            <td class="val-mono">20.40 µg/dL</td>
+            <td class="val-mono">~10–25 (matutino)</td>
+            <td style="font-size:12px; color: var(--text-muted);">Normal en rango matutino. No descarta insuficiencia suprarrenal central parcial — requiere prueba de estimulación con ACTH para confirmación.</td>
+          </tr>
+          <tr>
+            <td>Insulina sérica</td>
+            <td class="val-orange">3.58 µIU/mL ↓*</td>
+            <td class="val-mono">2.60–24.90</td>
+            <td style="font-size:12px; color: var(--text-muted);">Límite inferior. Descarta hiperinsulinismo como causa de los episodios hipoglucémicos. Hipoglucemias sin insulina elevada apuntan a déficit de cortisol o GH.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top: 12px; padding: 10px 12px; background: var(--surface); border: 1px dashed var(--blue-border); font-size: 12px; font-family: var(--mono); color: var(--blue);">
+        Nota clínica: La combinación de cortisol normal-bajo con insulina en límite inferior y episodios hipoglucémicos recurrentes sugiere respuesta insuficiente ante el estrés metabólico. La prueba de estimulación con ACTH sigue siendo el estudio necesario para descartar hipocortisolismo funcional bajo demanda.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Historial clínico estructurado · Roberto Lomelí · Uso médico exclusivo</span>
+    <span>Abril 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
